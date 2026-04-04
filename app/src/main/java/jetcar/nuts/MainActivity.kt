@@ -1,12 +1,15 @@
 package jetcar.nuts
 
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 
@@ -98,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(root)
         updateUi(engine.getLevel().instruction)
+        checkForUpdate()
     }
 
     private fun updateUi(status: String) {
@@ -129,6 +133,35 @@ class MainActivity : AppCompatActivity() {
     ).apply {
         marginStart = dp(4)
         marginEnd = dp(4)
+    }
+
+    private fun checkForUpdate() {
+        AppUpdateManager.checkForUpdate(this) { release ->
+            release?.let(::showUpdateDialog)
+        }
+    }
+
+    private fun showUpdateDialog(release: ReleaseData) {
+        if (isFinishing || isDestroyed) {
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Update available: ${release.tagName}")
+            .setMessage(buildUpdateMessage(release))
+            .setPositiveButton("Download") { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(release.downloadUrl)))
+            }
+            .setNeutralButton("Skip") { _, _ ->
+                AppUpdateManager.skipVersion(this, release.tagName)
+            }
+            .setNegativeButton("Later", null)
+            .show()
+    }
+
+    private fun buildUpdateMessage(release: ReleaseData): String {
+        val notes = release.changelog.ifBlank { "A new release is ready to download." }
+        return "$notes\n\nDownload the latest APK from GitHub Releases."
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
