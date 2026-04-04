@@ -69,6 +69,15 @@ jobs:
             echo "${major}.${minor}.$((10#$patch + 1))"
           }
 
+          version_code_from_version() {
+            local version="$1"
+            IFS='.' read -r major minor patch <<< "$version"
+            major=${major:-0}
+            minor=${minor:-0}
+            patch=${patch:-0}
+            echo $((10#$major * 10000 + 10#$minor * 100 + 10#$patch))
+          }
+
           current_version=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts | head -n1)
           current_version_code=$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -n1)
 
@@ -91,7 +100,6 @@ jobs:
 
           release_version="$current_version"
           release_version_code="$current_version_code"
-          auto_bumped=false
 
           if [ -n "$last_tag" ]; then
             last_version=${last_tag#v}
@@ -103,13 +111,9 @@ jobs:
 
           while git rev-parse -q --verify "refs/tags/v${release_version}" >/dev/null; do
             release_version=$(increment_patch "$release_version")
-            release_version_code=$((10#$release_version_code + 1))
-            auto_bumped=true
           done
 
-          if [ "$auto_bumped" = true ]; then
-            echo "Auto-bumped release version to v${release_version}"
-          fi
+          release_version_code=$(version_code_from_version "$release_version")
 
           echo "has_changes=$has_changes" >> "$GITHUB_OUTPUT"
           echo "release_tag=v${release_version}" >> "$GITHUB_OUTPUT"

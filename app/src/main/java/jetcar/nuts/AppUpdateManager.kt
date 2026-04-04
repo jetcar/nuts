@@ -1,6 +1,8 @@
 package jetcar.nuts
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import org.json.JSONObject
@@ -54,8 +56,17 @@ object AppUpdateManager {
     }
 
     private fun getLocalVersion(context: Context): String {
-        @Suppress("DEPRECATION")
-        return context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(0),
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0)
+        }
+
+        return packageInfo.versionName.orEmpty()
     }
 
     private fun fetchLatestRelease(): ReleaseData {
