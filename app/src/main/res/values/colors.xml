@@ -1,0 +1,8 @@
+<resources>
+    <color name="board_background">#2C2018</color>
+    <color name="screen_background">#16100B</color>
+    <color name="text_primary">#FFF3E7</color>
+    <color name="text_secondary">#D4BFAE</color>
+    <color name="button_background">#574031</color>
+    <color name="button_text">#FFF8F2</color>
+</resources>
