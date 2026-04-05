@@ -27,14 +27,14 @@ class NutsBoardView @JvmOverloads constructor(
 
     // --- Animation state ---
 
-    private data class BoltAnim(val startMs: Long, val durationMs: Long = 450L, val screwingIn: Boolean)
+    private data class BoltAnim(val startMs: Long, val durationMs: Long = BOLT_DURATION_MS, val screwingIn: Boolean)
 
     private data class FallingPlankAnim(
         val x1: Float, val y1: Float,
         val x2: Float, val y2: Float,
         val color: Int,
         val startMs: Long,
-        val durationMs: Long = 700L,
+        val durationMs: Long = FALL_DURATION_MS,
     )
 
     private data class HangState(val startMs: Long, val pivotAnchor: Int)
@@ -323,15 +323,14 @@ class NutsBoardView @JvmOverloads constructor(
     }
 
     private fun drawAnimatedBolt(canvas: Canvas, cx: Float, cy: Float, holeRadius: Float, anim: BoltAnim, progress: Float) {
-        val rotations = 1.5f
         if (anim.screwingIn) {
             val scale = lerp(0.3f, 1f, easeOut(progress))
-            val angle = (1f - progress) * rotations * 2f * PI.toFloat()
+            val angle = (1f - progress) * BOLT_ROTATION_COUNT * 2f * PI.toFloat()
             val alpha = (easeOut(progress) * 255).toInt()
             drawBolt(canvas, cx, cy, holeRadius, angle, scale, alpha)
         } else {
             val scale = lerp(1f, 0.3f, easeIn(progress))
-            val angle = progress * rotations * 2f * PI.toFloat()
+            val angle = progress * BOLT_ROTATION_COUNT * 2f * PI.toFloat()
             val alpha = ((1f - easeIn(progress)) * 255).toInt()
             drawBolt(canvas, cx, cy, holeRadius, angle, scale, alpha)
         }
@@ -386,6 +385,9 @@ class NutsBoardView @JvmOverloads constructor(
         if (t < 0.5f) 2f * t * t else 1f - (-2f * t + 2f).let { it * it } / 2f
 
     companion object {
+        private const val BOLT_DURATION_MS = 450L
+        private const val FALL_DURATION_MS = 700L
         private const val HANG_DURATION_MS = 450L
+        private const val BOLT_ROTATION_COUNT = 1.5f
     }
 }
