@@ -3,6 +3,5 @@
         <item name="android:statusBarColor">@color/screen_background</item>
         <item name="android:windowBackground">@color/screen_background</item>
         <item name="colorPrimary">@color/button_background</item>
-        <item name="colorOnPrimary">@color/button_text</item>
     </style>
 </resources>
