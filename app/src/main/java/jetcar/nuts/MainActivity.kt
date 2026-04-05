@@ -54,15 +54,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         val restartButton = buildButton("Restart") {
+            boardView.cancelAnimations()
             updateUi(engine.restartLevel())
         }
         levelOneButton = buildButton("Level 1") {
+            boardView.cancelAnimations()
             updateUi(engine.loadLevel(0))
         }
         levelTwoButton = buildButton("Level 2") {
+            boardView.cancelAnimations()
             updateUi(engine.loadLevel(1))
         }
         actionButton = buildButton("Next") {
+            boardView.cancelAnimations()
             updateUi(engine.advanceLevel())
         }
 
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 topMargin = dp(12)
             }
             onAnchorTap = { anchorIndex ->
-                updateUi(engine.handleAnchorTap(anchorIndex))
+                updateUi(engine.handleAnchorTap(anchorIndex).message)
             }
         }
 
