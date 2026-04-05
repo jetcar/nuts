@@ -49,32 +49,32 @@ class NutsGameEngine(
         }
     }
 
-    fun handleAnchorTap(anchorIndex: Int): String {
+    fun handleAnchorTap(anchorIndex: Int): MoveResult {
         require(anchorIndex in getLevel().anchors.indices)
 
         return when {
             anchorIndex in bolts -> {
                 selectedAnchor = if (selectedAnchor == anchorIndex) null else anchorIndex
                 if (selectedAnchor == null) {
-                    "Selection cleared."
+                    MoveResult("Selection cleared.")
                 } else {
-                    "Bolt selected. Tap an empty socket."
+                    MoveResult("Bolt selected. Tap an empty socket.")
                 }
             }
 
             selectedAnchor != null -> moveSelectedBolt(anchorIndex)
-            else -> "Tap a bolt to begin moving it."
+            else -> MoveResult("Tap a bolt to begin moving it.")
         }
     }
 
-    private fun moveSelectedBolt(targetAnchor: Int): String {
-        val sourceAnchor = selectedAnchor ?: return "Tap a bolt to begin moving it."
+    private fun moveSelectedBolt(targetAnchor: Int): MoveResult {
+        val sourceAnchor = selectedAnchor ?: return MoveResult("Tap a bolt to begin moving it.")
         if (targetAnchor in bolts) {
             selectedAnchor = targetAnchor
-            return "Bolt selected. Tap an empty socket."
+            return MoveResult("Bolt selected. Tap an empty socket.")
         }
         if (sourceAnchor == targetAnchor) {
-            return "Choose a different socket."
+            return MoveResult("Choose a different socket.")
         }
 
         bolts.remove(sourceAnchor)
@@ -89,20 +89,32 @@ class NutsGameEngine(
 
         removedPlanks.addAll(newlyRemoved)
 
-        return when {
-            isLevelComplete() -> {
-                "Level cleared in $moveCount moves!"
-            }
-
+        val message = when {
+            isLevelComplete() -> "Level cleared in $moveCount moves!"
             newlyRemoved.isNotEmpty() -> {
                 val cleared = newlyRemoved.size
                 "$cleared plank${if (cleared == 1) "" else "s"} removed. Keep going!"
             }
-
             else -> "Bolt moved."
         }
+
+        return MoveResult(
+            message = message,
+            moved = true,
+            sourceAnchor = sourceAnchor,
+            targetAnchor = targetAnchor,
+            newlyRemovedPlankIds = newlyRemoved,
+        )
     }
 }
+
+data class MoveResult(
+    val message: String,
+    val moved: Boolean = false,
+    val sourceAnchor: Int? = null,
+    val targetAnchor: Int? = null,
+    val newlyRemovedPlankIds: List<String> = emptyList(),
+)
 
 data class LevelDefinition(
     val name: String,
